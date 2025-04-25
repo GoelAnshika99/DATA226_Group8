@@ -140,7 +140,7 @@ def load(cur: SnowflakeCursor, data_file: str, table_name: str):
 
 with DAG(
     dag_id='data_226_group_8',
-    start_date=datetime(2025, 3, 1),
+    start_date=datetime(2024, 10, 1),
     catchup=True,
     tags=['lab'],
     schedule='0 2 * * *'
