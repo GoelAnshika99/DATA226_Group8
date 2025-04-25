@@ -1,0 +1,19 @@
+version: 2
+
+sources:
+  - name: raw
+    database: USER_DB_MALLARD
+    schema: raw
+    description: "Schema which stores raw tables (ETL)"
+    tables:
+      - name: NVDA_STOCK
+        identifier: NVDA_STOCK
+        description: "Raw stock prices data"
+  - name: analytics
+    database: USER_DB_MALLARD
+    schema: analytics
+    description: "Schema with stores analytics tables (ELT)"
+    tables:
+      - name: stock_analytics
+        identifier: stock_analytics
+        description: "Stock anlalytics info"

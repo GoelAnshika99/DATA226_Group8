@@ -1,0 +1,56 @@
+version: 2
+
+models:
+  - name: clean_stock
+    description: "Cleaned stock prices pulled from the raw layer"
+    columns:
+      - name: symbol
+        description: "Normalized stock ticker"
+        tests:
+          - not_null
+      - name: date
+        description: "Date of price quote"
+        tests:
+          - not_null
+      - name: open
+        description: "Opening price"
+      - name: close
+        description: "Closing price"
+      - name: high
+        description: "High price of the day"
+      - name: low
+        description: "Low price of the day"
+      - name: volume
+        description: "Number of shares traded"
+
+  - name: stock_analytics
+    description: "Technical indicator calculations based on stock prices"
+    columns:
+      - name: symbol
+        description: Stock symbol
+      - name: date
+        description: Trading date
+      - name: close
+        description: Closing price
+      - name: momentum
+        description: Day-over-day price change
+      - name: rsi_5
+        description: 5-day RSI
+      - name: rsi_class
+        description: RSI classification ("Overbought", "Oversold", etc.)
+      - name: macd
+        description: Moving Average Convergence Divergence (fast - slow EMA)
+      - name: bollinger_mid
+        description: 10-day SMA (middle of Bollinger Bands)
+      - name: bollinger_upper
+        description: Upper Bollinger Band
+      - name: bollinger_lower
+        description: Lower Bollinger Band
+      - name: rsi_signal
+        description: Signal from RSI (Buy/Sell/Hold)
+      - name: macd_signal
+        description: Signal from MACD (Buy/Sell/Hold)
+      - name: bollinger_signal
+        description: Signal from Bollinger Bands (Buy/Sell/Hold)
+      - name: overall_signal
+        description: Final combined Buy/Sell/Hold recommendation
