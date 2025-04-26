@@ -139,7 +139,7 @@ def load(cur: SnowflakeCursor, data_file: str, table_name: str):
         raise e
 
 with DAG(
-    dag_id='data_226_group_8',
+    dag_id='Group_ETL',
     start_date=datetime(2024, 10, 1),
     catchup=True,
     tags=['lab'],
