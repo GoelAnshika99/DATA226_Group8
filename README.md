@@ -1,4 +1,4 @@
-# DATA 226 Lab 2 Group 8
+# DATA 226 Group 8 Project
 
 ### How to set up
 You will need to do the following:
