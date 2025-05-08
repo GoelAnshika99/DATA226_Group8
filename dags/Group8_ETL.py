@@ -7,6 +7,7 @@ from airflow.decorators import task
 from airflow.models import Variable
 from airflow.operators.python import get_current_context
 from airflow.providers.snowflake.hooks.snowflake import SnowflakeHook
+import pandas as pd
 from snowflake.connector.cursor import SnowflakeCursor
 
 import yfinance as yf
@@ -98,6 +99,34 @@ def build_data_warehouse(cur: SnowflakeCursor):
         raise e
 
 @task
+def extract_transform_historical_data(infile_path: str, outfile_path: str):
+    historical = pd.read_csv(infile_path)
+
+    historical = historical[historical.index > 1].reset_index(drop=True)
+
+    cols = list(historical.columns)
+    cols[0] = 'Date'
+    historical.columns = cols
+
+    historical = historical.drop('Adj Close', axis='columns')
+    historical['Symbol'] = symbol
+
+    historical.to_csv(outfile_path, index=False)
+
+@task
+def load_historical_data(cur: SnowflakeCursor, file_path: str):
+    try:
+        cur.execute('BEGIN;')
+
+        populate_table_via_stage(cur, f'{symbol}_stock', file_path)
+
+        cur.execute('COMMIT;')
+    except Exception as e:
+        cur.execute('ROLLBACK;')
+        logging.error(e)
+        raise e
+
+@task
 def extract(symbol: str) -> str:
     current_date = get_logical_date()
     next_date = current_date + timedelta(days=1)
@@ -158,3 +187,22 @@ with DAG(
 
     # This forces the data warehouse to be built and the data to be extracted before we start loading into the data warehouse
     [build_dw_instance, extract_instance] >> load_instance
+
+with DAG(
+    dag_id='Load_Historical_Data',
+    start_date=datetime(2018, 1, 2),
+    catchup=False,
+    tags=['etl'],
+    schedule='0 2 * * *'
+) as dag2:
+    cur = get_snowflake_connection()
+
+    build_dw_instance = build_data_warehouse(cur)
+
+    temp_file = '/tmp/historical_transformed.csv'
+
+    et_instance = extract_transform_historical_data('/opt/airflow/dags/NVIDIA_STOCK.csv', temp_file)
+
+    load_instance = load_historical_data(cur, temp_file)
+
+    [build_dw_instance, et_instance] >> load_instance
