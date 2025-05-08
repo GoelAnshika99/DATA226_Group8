@@ -15,6 +15,7 @@ with DAG(
     description="An Airflow DAG to invoke dbt runs using a BashOperator",
     schedule=None,
     catchup=False,
+    tags=['elt'],
     default_args={
         "env": {
             "DBT_USER": conn.login,

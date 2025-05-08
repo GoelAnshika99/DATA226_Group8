@@ -168,10 +168,10 @@ def load(cur: SnowflakeCursor, data_file: str, table_name: str):
         raise e
 
 with DAG(
-    dag_id='Group_ETL',
+    dag_id='ETL_Daily_Data',
     start_date=datetime(2024, 10, 1),
     catchup=True,
-    tags=['lab'],
+    tags=['etl'],
     schedule='0 2 * * *'
 ) as dag:
     cur = get_snowflake_connection()
@@ -189,7 +189,7 @@ with DAG(
     [build_dw_instance, extract_instance] >> load_instance
 
 with DAG(
-    dag_id='Load_Historical_Data',
+    dag_id='ETL_Historical_Data',
     start_date=datetime(2018, 1, 2),
     catchup=False,
     tags=['etl'],
