@@ -87,11 +87,23 @@ final AS (
     SELECT
         *,
         -- Final signal based on alignment of multiple indicators
+
         CASE
-            WHEN rsi_signal = 'Buy' AND macd_signal = 'Buy' AND bollinger_signal = 'Buy' THEN 'Strong Buy'
+            -- all three agree
+            WHEN rsi_signal = 'Buy'  AND macd_signal = 'Buy'  AND bollinger_signal = 'Buy'  THEN 'Strong Buy'
             WHEN rsi_signal = 'Sell' AND macd_signal = 'Sell' AND bollinger_signal = 'Sell' THEN 'Strong Sell'
-            WHEN rsi_signal = 'Buy' OR macd_signal = 'Buy' OR bollinger_signal = 'Buy' THEN 'Buy'
-            WHEN rsi_signal = 'Sell' OR macd_signal = 'Sell' OR bollinger_signal = 'Sell' THEN 'Sell'
+
+            -- any two Buy votes
+            WHEN (rsi_signal = 'Buy'  AND macd_signal = 'Buy')
+            OR (rsi_signal = 'Buy'  AND bollinger_signal = 'Buy')
+            OR (macd_signal = 'Buy' AND bollinger_signal = 'Buy')                             THEN 'Buy'
+
+            -- any two Sell votes
+            WHEN (rsi_signal = 'Sell'  AND macd_signal = 'Sell')
+            OR (rsi_signal = 'Sell'  AND bollinger_signal = 'Sell')
+            OR (macd_signal = 'Sell' AND bollinger_signal = 'Sell')                           THEN 'Sell'
+
+            -- otherwise
             ELSE 'Hold'
         END AS overall_signal
     FROM signals
