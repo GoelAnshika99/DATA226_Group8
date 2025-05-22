@@ -13,7 +13,7 @@ with DAG(
     "Group_ELT_dbt",
     start_date=datetime(2025, 1, 1),
     description="An Airflow DAG to invoke dbt runs using a BashOperator",
-    schedule="0 4 * * *",  # run once per day at 04:00, after ETL
+    schedule="30 2 * * *",   # 02:30 daily, after the 02:00 ETL jobs
     catchup=False,
     tags=['elt'],
     default_args={
@@ -29,6 +29,18 @@ with DAG(
         }
     },
 ) as dag:
+
+    wait_daily_etl = ExternalTaskSensor(
+        task_id="wait_daily_etl",
+        external_dag_id="ETL_Daily_Data",
+        external_task_id="load",  # final task in ETL_Daily_Data
+        allowed_states=["success"],
+        failed_states=["failed", "skipped"],
+        poke_interval=300,           # every 5 min
+        timeout=60 * 60 * 2,        # give up after 2 h
+        mode="reschedule",
+    )
+    
     dbt_run = BashOperator(
         task_id="dbt_run",
         bash_command=f"/home/airflow/.local/bin/dbt run --profiles-dir {DBT_PROJECT_DIR} --project-dir {DBT_PROJECT_DIR}",
