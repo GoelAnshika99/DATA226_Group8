@@ -13,7 +13,7 @@ with DAG(
     "Group_ELT_dbt",
     start_date=datetime(2025, 1, 1),
     description="An Airflow DAG to invoke dbt runs using a BashOperator",
-    schedule=None,
+    schedule="0 4 * * *",  # run once per day at 04:00, after ETL
     catchup=False,
     tags=['elt'],
     default_args={
