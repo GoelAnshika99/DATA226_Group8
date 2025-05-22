@@ -3,6 +3,7 @@ from pendulum import datetime
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.hooks.base import BaseHook
+from airflow.sensors.external_task import ExternalTaskSensor
 
 
 DBT_PROJECT_DIR = "/opt/airflow/dbt_group"
@@ -61,4 +62,4 @@ with DAG(
     #    bash_command='echo "The value of AA is: $DBT_ACCOUNT,$DBT_ROLE,$DBT_DATABASE,$DBT_WAREHOUSE,$DBT_USER,$DBT_TYPE,$DBT_SCHEMA"'
     # )
 
-    dbt_run >> dbt_test >> dbt_snapshot
+    wait_for_daily_etl >> dbt_run >> dbt_test >> dbt_snapshot
